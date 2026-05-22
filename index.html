@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MSUans Chat</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --maroon:      #800000;
+      --maroon-dark: #600000;
+      --maroon-dim:  #80000033;
+      --white:       #f5f0f0;
+      --off-white:   #faf6f6;
+      --cream:       #ede5e5;
+      --text-dark:   #2a0000;
+      --text-dim:    #d4a0a0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--white);
+      color: var(--text-dark);
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: radial-gradient(circle at 20% 20%, #80000011 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, #80000008 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ══════════════════════════════
+       TERMS SCREEN
+    ══════════════════════════════ */
+    #terms-screen {
+      background: var(--maroon);
+      border: 1px solid #ffffff22;
+      border-radius: 24px;
+      width: 480px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 32px 80px #80000033;
+      animation: fadeUp 0.4s ease;
+      overflow: hidden;
+    }
+
+    .terms-header {
+      padding: 28px 32px 20px;
+      border-bottom: 1px solid #ffffff22;
+      flex-shrink: 0;
+    }
+
+    .terms-header .logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      background: #f5f0f0;
+      border-radius: 14px;
+      font-size: 1.4rem;
+      margin-bottom: 12px;
+    }
+
+    .terms-header h1 {
+      color: #f5f0f0;
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+
+    .terms-header p {
+      color: #d4a0a0;
+      font-size: 0.8rem;
+    }
+
+    .terms-body {
+      padding: 24px 32px;
+      overflow-y: auto;
+      flex: 1;
+      scrollbar-width: thin;
+      scrollbar-color: #ffffff33 transparent;
+    }
+
+    .terms-body::-webkit-scrollbar { width: 4px; }
+    .terms-body::-webkit-scrollbar-thumb { background: #ffffff33; border-radius: 4px; }
+
+    .terms-section { margin-bottom: 20px; }
+
+    .terms-section h2 {
+      color: #f5f0f0;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .terms-section p {
+      color: #d4a0a0;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      margin-bottom: 6px;
+    }
+
+    .terms-section ul {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .terms-section ul li {
+      color: #d4a0a0;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      padding-left: 16px;
+      position: relative;
+    }
+
+    .terms-section ul li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #f5f0f088;
+    }
+
+    .terms-footer {
+      padding: 20px 32px 28px;
+      border-top: 1px solid #ffffff22;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      cursor: pointer;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      accent-color: #f5f0f0;
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .checkbox-row label {
+      color: #d4a0a0;
+      font-size: 0.82rem;
+      line-height: 1.4;
+      cursor: pointer;
+    }
+
+    #lets-go-btn {
+      width: 100%;
+      padding: 13px;
+      background: #f5f0f0;
+      color: var(--maroon);
+      font-weight: 700;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      opacity: 0.4;
+      pointer-events: none;
+      margin-top: 4px;
+    }
+
+    #lets-go-btn.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #lets-go-btn.active:hover {
+      background: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* ══════════════════════════════
+       LOGIN SCREEN
+    ══════════════════════════════ */
+    #login-screen {
+      display: none;
+      background: var(--maroon);
+      border: 1px solid #ffffff22;
+      border-radius: 24px;
+      padding: 48px 40px;
+      text-align: center;
+      width: 380px;
+      box-shadow: 0 32px 80px #80000033;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .logo {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      background: #f5f0f0;
+      border-radius: 18px;
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      box-shadow: 0 8px 24px #00000033;
+    }
+
+    #login-screen h1 {
+      color: #f5f0f0;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+    }
+
+    #login-screen .tagline {
+      color: #d4a0a0;
+      font-size: 0.875rem;
+      margin-bottom: 32px;
+      line-height: 1.5;
+    }
+
+    .input-wrapper {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .input-wrapper .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      opacity: 0.5;
+    }
+
+    #login-screen input {
+      width: 100%;
+      padding: 14px 16px 14px 42px;
+      border-radius: 12px;
+      border: 1px solid #ffffff33;
+      background: var(--maroon-dark);
+      color: #f5f0f0;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    #login-screen input:focus {
+      border-color: #f5f0f0;
+      box-shadow: 0 0 0 3px #ffffff22;
+    }
+
+    #login-screen input::placeholder { color: #d4a0a0; }
+
+    #start-btn {
+      width: 100%;
+      padding: 14px;
+      background: #f5f0f0;
+      color: var(--maroon);
+      font-weight: 700;
+      font-size: 0.95rem;
+      font-family: 'Inter', sans-serif;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 16px #00000022;
+      letter-spacing: 0.5px;
+    }
+
+    #start-btn:hover {
+      transform: translateY(-1px);
+      background: #ffffff;
+      box-shadow: 0 8px 24px #00000033;
+    }
+
+    .login-footer {
+      margin-top: 24px;
+      font-size: 0.75rem;
+      color: #d4a0a0;
+    }
+
+    .login-footer span { color: #f5f0f0; opacity: 0.8; }
+
+    /* ══════════════════════════════
+       CHAT SCREEN
+    ══════════════════════════════ */
+    #chat-screen {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      max-width: 680px;
+      height: 100vh;
+      animation: fadeUp 0.3s ease;
+    }
+
+    #chat-header {
+      background: var(--maroon);
+      border-bottom: 1px solid #ffffff22;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 4px 20px #00000022;
+    }
+
+    .header-logo {
+      width: 38px;
+      height: 38px;
+      background: #f5f0f0;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .header-info { flex: 1; }
+
+    .header-info h2 {
+      color: #f5f0f0;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+    }
+
+    #status {
+      font-size: 0.75rem;
+      color: #d4a0a0;
+      margin-top: 1px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #d4a0a0;
+      flex-shrink: 0;
+    }
+
+    .status-dot.green  { background: #4caf50; box-shadow: 0 0 6px #4caf5088; }
+    .status-dot.yellow { background: #ffc107; box-shadow: 0 0 6px #ffc10788; animation: pulse 1s infinite; }
+    .status-dot.red    { background: #f44336; }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.4; }
+    }
+
+    #skip-btn {
+      background: transparent;
+      border: 1px solid #ffffff44;
+      color: #f5f0f0;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    #skip-btn:hover:not(:disabled) { background: #ffffff22; }
+    #skip-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    #messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 20px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      background: var(--off-white);
+      scrollbar-width: thin;
+      scrollbar-color: #c9a0a0 transparent;
+    }
+
+    #messages::-webkit-scrollbar { width: 4px; }
+    #messages::-webkit-scrollbar-thumb { background: #c9a0a0; border-radius: 4px; }
+
+    .bubble-row {
+      display: flex;
+      flex-direction: column;
+      animation: bubbleIn 0.2s ease;
+    }
+
+    @keyframes bubbleIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .bubble-row.me       { align-items: flex-end; }
+    .bubble-row.stranger { align-items: flex-start; }
+
+    .bubble-label {
+      font-size: 0.7rem;
+      color: #a07070;
+      margin-bottom: 4px;
+      padding: 0 4px;
+    }
+
+    .bubble {
+      max-width: 68%;
+      padding: 10px 16px;
+      border-radius: 18px;
+      font-size: 0.92rem;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .bubble.me {
+      background: var(--maroon);
+      color: #f5f0f0;
+      border-bottom-right-radius: 4px;
+      font-weight: 500;
+    }
+
+    .bubble.stranger {
+      background: var(--cream);
+      color: var(--text-dark);
+      border-bottom-left-radius: 4px;
+      border: 1px solid #80000015;
+    }
+
+    .bubble-time {
+      font-size: 0.65rem;
+      color: #a07070;
+      margin-top: 4px;
+      padding: 0 4px;
+    }
+
+    .system-msg {
+      text-align: center;
+      font-size: 0.78rem;
+      color: #a07070;
+      font-style: italic;
+      padding: 8px 16px;
+      background: #80000010;
+      border-radius: 20px;
+      align-self: center;
+      max-width: 80%;
+    }
+
+    #typing-indicator {
+      padding: 6px 20px;
+      font-size: 0.78rem;
+      color: var(--maroon);
+      font-style: italic;
+      min-height: 28px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--off-white);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    #typing-indicator.visible { opacity: 1; }
+
+    .typing-dots { display: flex; gap: 3px; }
+
+    .typing-dots span {
+      width: 5px;
+      height: 5px;
+      background: var(--maroon);
+      border-radius: 50%;
+      animation: dot 1.2s infinite;
+    }
+
+    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes dot {
+      0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+      40%            { transform: scale(1);   opacity: 1; }
+    }
+
+    #input-area {
+      background: var(--maroon);
+      border-top: 1px solid #ffffff22;
+      padding: 16px 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    #msg-input {
+      flex: 1;
+      padding: 12px 18px;
+      border-radius: 24px;
+      border: 1px solid #ffffff33;
+      background: var(--maroon-dark);
+      color: #f5f0f0;
+      font-size: 0.92rem;
+      font-family: 'Inter', sans-serif;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    #msg-input:focus {
+      border-color: #f5f0f0;
+      box-shadow: 0 0 0 3px #ffffff22;
+    }
+
+    #msg-input::placeholder { color: #d4a0a0; }
+    #msg-input:disabled { opacity: 0.4; }
+
+    #send-btn {
+      background: #f5f0f0;
+      color: var(--maroon);
+      border: none;
+      border-radius: 50%;
+      width: 46px;
+      height: 46px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px #00000022;
+      flex-shrink: 0;
+    }
+
+    #send-btn:hover:not(:disabled) {
+      transform: scale(1.05);
+      background: #ffffff;
+    }
+
+    #send-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  </style>
+</head>
+<body>
+
+  <!-- Terms Screen -->
+  <div id="terms-screen">
+    <div class="terms-header">
+      <div class="logo">🎓</div>
+      <h1>MSUANS</h1>
+      <p>Please read and agree before chatting</p>
+    </div>
+
+    <div class="terms-body">
+      <div class="terms-section">
+        <h2>What is MSUans?</h2>
+        <p>MSUans is a place just for MSU students. It's where you can connect, talk about university experiences, help each other with school stuff, and make friends with others going through the same college journey. Let's chat, learn, and grow together!</p>
+      </div>
+
+      <div class="terms-section">
+        <h2>Terms and Conditions</h2>
+        <p>By using MSUans, you agree to the following:</p>
+        <ul>
+          <li>You are 18 years or older.</li>
+          <li>You are solely responsible for your interactions and the messages you send.</li>
+          <li>Do not send any illegal, harmful, threatening, abusive, harassing, vulgar, or obscene messages.</li>
+          <li>Do not impersonate any other person or entity.</li>
+          <li>We reserve the right to terminate access for users who violate community guidelines.</li>
+        </ul>
+      </div>
+
+      <div class="terms-section">
+        <h2>Disclaimer of Liability</h2>
+        <p>MSUans is provided on an "as is" basis. We make no warranties about the operation of this service. You expressly agree that your use of MSUans is at your sole risk.</p>
+        <p>To the fullest extent permitted by law, we disclaim all liability for any damages arising out of or in connection with your use of MSUans.</p>
+      </div>
+    </div>
+
+    <div class="terms-footer">
+      <label class="checkbox-row">
+        <input type="checkbox" id="check-student" onchange="checkboxChanged()" />
+        <label for="check-student">I confirm that I am 18 years or older.</label>
+      </label>
+      <label class="checkbox-row">
+        <input type="checkbox" id="check-terms" onchange="checkboxChanged()" />
+        <label for="check-terms">I agree to MSUans' terms and conditions.</label>
+      </label>
+      <button id="lets-go-btn" onclick="showLogin()">Let's Go →</button>
+    </div>
+  </div>
+
+  <!-- Login Screen -->
+  <div id="login-screen">
+    <div class="logo">🎓</div>
+    <h1>MSUANS</h1>
+    <p class="tagline">Chat anonymously with fellow<br/>MSU students. No sign-up needed.</p>
+    <div class="input-wrapper">
+      <span class="input-icon">👤</span>
+      <input type="text" id="username-input" placeholder="Choose a username" maxlength="20" />
+    </div>
+    <button id="start-btn" onclick="startChat()">Start Chatting →</button>
+    <p class="login-footer">🔒 Anonymous · <span>MSU Students Only</span> · Free</p>
+  </div>
+
+  <!-- Chat Screen -->
+  <div id="chat-screen">
+    <div id="chat-header">
+      <div class="header-logo">🎓</div>
+      <div class="header-info">
+        <h2>MSUANS</h2>
+        <div id="status">
+          <div class="status-dot" id="status-dot"></div>
+          <span id="status-text">Connecting...</span>
+        </div>
+      </div>
+      <button id="skip-btn" onclick="skip()" disabled>⏭ Next</button>
+    </div>
+
+    <div id="messages"></div>
+
+    <div id="typing-indicator">
+      <div class="typing-dots">
+        <span></span><span></span><span></span>
+      </div>
+      Stranger is typing...
+    </div>
+
+    <div id="input-area">
+      <input type="text" id="msg-input" placeholder="Type a message..." disabled />
+      <button id="send-btn" onclick="sendMessage()" disabled>➤</button>
+    </div>
+  </div>
+
+  <script>
+    let socket
+    let username
+    let partnerName = 'Stranger'
+
+    // ── Terms logic ──
+    function checkboxChanged() {
+      const c1 = document.getElementById('check-student').checked
+      const c2 = document.getElementById('check-terms').checked
+      const btn = document.getElementById('lets-go-btn')
+      btn.classList.toggle('active', c1 && c2)
+    }
+
+    function showLogin() {
+      document.getElementById('terms-screen').style.display = 'none'
+      document.getElementById('login-screen').style.display = 'block'
+    }
+
+    // ── Chat logic ──
+    function startChat() {
+      const input = document.getElementById('username-input').value.trim()
+      if (!input) return alert('Please enter a username!')
+      username = input
+
+      document.getElementById('login-screen').style.display = 'none'
+      document.getElementById('chat-screen').style.display = 'flex'
+
+      connectWebSocket()
+    }
+
+    function connectWebSocket() {
+      socket = new WebSocket('ws://localhost:3000')
+
+      socket.onopen = () => {
+        socket.send(JSON.stringify({ type: 'join', username }))
+      }
+
+      socket.onmessage = (event) => {
+        const msg = JSON.parse(event.data)
+
+        if (msg.type === 'waiting') {
+          setStatus('yellow', 'Looking for a stranger...')
+          disableChat(true)
+          addSystemMessage('🔍 Looking for someone to chat with...')
+        }
+
+        if (msg.type === 'matched') {
+          partnerName = msg.partnerName
+          setStatus('green', `Connected to ${partnerName}`)
+          disableChat(false)
+          addSystemMessage(`🎉 You are now chatting with ${partnerName}. Say hi!`)
+        }
+
+        if (msg.type === 'typing') {
+          document.getElementById('typing-indicator').classList.toggle('visible', msg.value)
+        }
+
+        if (msg.type === 'message') {
+          addBubble(msg.text, 'stranger')
+        }
+
+        if (msg.type === 'partner_left') {
+          setStatus('red', `${partnerName} disconnected`)
+          disableChat(true)
+          addSystemMessage(`👋 ${partnerName} has left. Click Next to find someone new.`)
+          document.getElementById('skip-btn').disabled = false
+          partnerName = 'Stranger'
+        }
+      }
+
+      socket.onclose = () => {
+        setStatus('red', 'Disconnected')
+        addSystemMessage('Connection lost.')
+      }
+    }
+
+    function sendMessage() {
+      const input = document.getElementById('msg-input')
+      const text = input.value.trim()
+      if (!text) return
+      socket.send(JSON.stringify({ type: 'message', text }))
+      addBubble(text, 'me')
+      input.value = ''
+    }
+
+    function skip() {
+      clearMessages()
+      socket.send(JSON.stringify({ type: 'skip' }))
+      setStatus('yellow', 'Looking for a stranger...')
+      disableChat(true)
+    }
+
+    function addBubble(text, who) {
+      document.getElementById('typing-indicator').classList.remove('visible')
+      const now = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      const row = document.createElement('div')
+      row.classList.add('bubble-row', who)
+
+      const label = document.createElement('div')
+      label.classList.add('bubble-label')
+      label.textContent = who === 'me' ? username : partnerName
+
+      const bubble = document.createElement('div')
+      bubble.classList.add('bubble', who)
+      bubble.textContent = text
+
+      const time = document.createElement('div')
+      time.classList.add('bubble-time')
+      time.textContent = now
+
+      row.appendChild(label)
+      row.appendChild(bubble)
+      row.appendChild(time)
+      document.getElementById('messages').appendChild(row)
+      scrollToBottom()
+    }
+
+    function addSystemMessage(text) {
+      const div = document.createElement('div')
+      div.classList.add('system-msg')
+      div.textContent = text
+      document.getElementById('messages').appendChild(div)
+      scrollToBottom()
+    }
+
+    function clearMessages() {
+      document.getElementById('messages').innerHTML = ''
+      document.getElementById('typing-indicator').classList.remove('visible')
+    }
+
+    function setStatus(color, text) {
+      document.getElementById('status-dot').className = `status-dot ${color}`
+      document.getElementById('status-text').textContent = text
+    }
+
+    function disableChat(disabled) {
+      document.getElementById('msg-input').disabled = disabled
+      document.getElementById('send-btn').disabled = disabled
+      document.getElementById('skip-btn').disabled = disabled
+    }
+
+    function scrollToBottom() {
+      const msgs = document.getElementById('messages')
+      msgs.scrollTop = msgs.scrollHeight
+    }
+
+    let typingTimer
+    document.getElementById('msg-input').addEventListener('input', () => {
+      socket.send(JSON.stringify({ type: 'typing', value: true }))
+      clearTimeout(typingTimer)
+      typingTimer = setTimeout(() => {
+        socket.send(JSON.stringify({ type: 'typing', value: false }))
+      }, 1000)
+    })
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        const chatVisible = document.getElementById('chat-screen').style.display === 'flex'
+        const loginVisible = document.getElementById('login-screen').style.display === 'block'
+        if (chatVisible) sendMessage()
+        else if (loginVisible) startChat()
+      }
+    })
+  </script>
+
+</body>
+</html>
