@@ -692,7 +692,7 @@
         socket.send(JSON.stringify({ type: 'join', username }))
       }
 
-      socket.onmessage = (event) => {s
+      socket.onmessage = (event) => {
         const msg = JSON.parse(event.data)
 
         if (msg.type === 'waiting') {
