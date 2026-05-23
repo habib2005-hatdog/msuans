@@ -685,13 +685,14 @@
     }
 
     function connectWebSocket() {
-      socket = new WebSocket('ws://localhost:3000')
+      const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+      socket = new WebSocket(`${protocol}//${window.location.host}`)
 
       socket.onopen = () => {
         socket.send(JSON.stringify({ type: 'join', username }))
       }
 
-      socket.onmessage = (event) => {
+      socket.onmessage = (event) => {s
         const msg = JSON.parse(event.data)
 
         if (msg.type === 'waiting') {
